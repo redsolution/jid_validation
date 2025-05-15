@@ -8,25 +8,57 @@ def _validate_jid(value):
         return None
 
 
-def validate_jid(value):
+def validate_full_jid(value):
     jid = _validate_jid(value)
-    return None if jid is None else jid.full()
+    if jid and jid.user and jid.host:
+        return jid.full()
+    else:
+        return None
 
 
 def validate_bare_jid(value):
     jid = _validate_jid(value)
-    return None if jid is None else jid.userhost()
+    if jid and jid.user and jid.host:
+        return jid.userhost()
+    else:
+        return None
+
+
+def validate_server_jid(value):
+    jid = _validate_jid(value)
+    if jid and jid.host:
+        return jid.host
+    else:
+        return None
+
+
+def validate_jid(value):
+    try:
+        jid_obj = JID(value)
+    except Exception as e:
+        return {'success': False, 'error_message': e}
+
+    if jid_obj.user and jid_obj.host:
+        try:
+            full_jid = jid_obj.full()
+            return {"success": True, "full_jid": full_jid}
+        except:
+            pass
+
+    return {'success': False, 'error_message': 'Invalid JID.'}
 
 
 def validate_localpart(value):
     try:
-        return prep_localpart(value)
-    except:
-        return None
+        localpart = prep_localpart(value)
+        return {"success": True, "localpart": localpart}
+    except Exception as e:
+        return {'success': False, 'error_message': e}
 
 
 def validate_host(value):
     try:
-        return prep_host(value)
-    except:
-        return None
+        host = prep_host(value)
+        return {"success": True, "host": host}
+    except Exception as e:
+        return {'success': False, 'error_message': e}
